@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Run unit tests
+        run: bash run_tests.sh
+
+      - name: Build universal app
+        run: bash build.sh
+
+      - name: Verify bundle
+        run: |
+          lipo -archs build/Tapper.app/Contents/MacOS/Tapper
+          codesign --verify --deep --strict build/Tapper.app
+          plutil -lint build/Tapper.app/Contents/Info.plist

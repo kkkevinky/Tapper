@@ -1,0 +1,17 @@
+# Swift Package Manager (for tests)
+.build/
+*.swiftpm
+
+# App bundles and script build outputs
+build/
+
+# macOS
+.DS_Store
+._*
+
+# Logs
+*.log
+
+# Claude Code
+.claude/
+.qwen/
