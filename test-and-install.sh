@@ -87,10 +87,10 @@ if [[ -e "$INSTALL_PATH" || -L "$INSTALL_PATH" ]]; then
     mv "$INSTALL_PATH" "$BACKUP_PATH"
 fi
 mv "$STAGING/Tapper.app" "$INSTALL_PATH"
-"$LSREGISTER" -f "$INSTALL_PATH" || true
+"$LSREGISTER" -f "$INSTALL_PATH" >/dev/null 2>&1 || true
 echo "已安装本次构建: $INSTALL_PATH"
 if [[ -n "$BACKUP_PATH" ]]; then
-    "$LSREGISTER" -u "$BACKUP_PATH" || true
+    "$LSREGISTER" -u "$BACKUP_PATH" >/dev/null 2>&1 || true
     mkdir -p "$BACKUP_DIR"
     BACKUP_ZIP="$BACKUP_DIR/Tapper_backup_$(date +%Y%m%d_%H%M%S)_$$.zip"
     if ditto -c -k --keepParent "$BACKUP_PATH" "$BACKUP_ZIP"; then
