@@ -54,8 +54,14 @@ struct TouchTuning: Equatable {
     var palmSwipeSize: Float
     var palmSwipeMajor: Float
     /// A slower tap on the right part of the shell becomes a right click.
-    /// Off by default: only left-click taps; the physical right click still works.
+    /// Off by default: only left-click taps; the physical right click and the
+    /// two-finger tap still work.
     var rightTapEnabled: Bool
+    /// Two fingers tapping together right-click, as on a trackpad.
+    var twoFingerTapEnabled: Bool
+    /// The two fingers must land within this time of each other, and lift
+    /// within it too.
+    var twoFingerTapGap: TimeInterval
     /// What a release with the fingers moving back does: "commit" (switch
     /// anyway; the only shape that behaved on 27.0.1), "cancelled" or "ended0".
     var swipeCancelStyle: String
@@ -102,6 +108,8 @@ struct TouchTuning: Equatable {
             palmSwipeSize: Float(double("palmSwipeSize", 3.0)),
             palmSwipeMajor: Float(double("palmSwipeMajor", 19)),
             rightTapEnabled: bool("rightTapEnabled", false),
+            twoFingerTapEnabled: bool("twoFingerTapEnabled", true),
+            twoFingerTapGap: double("twoFingerTapGap", 0.15),
             swipeCancelStyle: defaults.string(forKey: defaultsPrefix + "swipeCancelStyle") ?? "commit",
             swipeCommitDistance: Float(double("swipeCommitDistance", 0.10)),
             swipeInstantDistance: Float(double("swipeInstantDistance", 0.10)),

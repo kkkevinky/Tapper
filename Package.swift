@@ -64,7 +64,8 @@ let package = Package(
                 "MultitouchRestartManager.swift",
                 "MultitouchDeviceClassifier.swift",
                 "TapConfiguration.swift",
-                "TapDetector.swift"
+                "TapDetector.swift",
+                "TwoFingerTap.swift"
             ]
         ),
         .testTarget(

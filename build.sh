@@ -61,6 +61,7 @@ compile_arch() {
     MultitouchDeviceClassifier.swift \
     TapConfiguration.swift \
     TapDetector.swift \
+    TwoFingerTap.swift \
     TouchTuning.swift \
     SpaceSwipe.swift \
     EventSynthesizer.swift \
@@ -125,6 +126,7 @@ echo "Architectures: arm64 (Apple Silicon) + x86_64 (Intel)"
 echo ""
 echo "Features:"
 echo "  • Tap to click, double-click and tap-to-drag"
+echo "  • Two-finger tap to right-click"
 echo "  • Two-finger Space switching, also with the palm resting on the mouse"
 echo "  • Pointer speed slider and tap sensitivity settings"
 echo "  • Independent two-finger zoom (experimental, off by default)"

@@ -17,10 +17,11 @@ Tapper 为 Apple Magic Mouse 补上 macOS 没有提供的两件事：轻点点�
 
 - **轻点**鼠标前面三分之二的任意位置即为左键点击。后三分之一的轻触会被忽略，所以搭在上面的手掌不会误点。
 - **快速轻点两下**即为双击。
+- **双指轻点**即为右键，和触控板一样。两根手指一起落下、一起抬起，时长和移动限制与单指轻点相同。
 - **拖拽**：轻点一下，再次触碰并保持手指不抬起，然后移动鼠标；抬起手指即放下。
 - **轻触也能识别。** 鼠标几乎感觉不到的轻而短的触碰也能点击。
 - **静止的手指不碍事。** 在鼠标上静止半秒的手指会被忽略，旁边的另一根手指照样可以轻点。
-- **按压照常工作。** 正常按下鼠标只点击一次，Tapper 不会再额外补一次点击。右键请照常按下鼠标右侧（**系统设置 → 鼠标 → 辅助点按**）；轻点右键默认关闭（见[高级设置](#高级设置)）。
+- **按压照常工作。** 正常按下鼠标只点击一次，Tapper 不会再额外补一次点击。按下鼠标右侧照样是右键（**系统设置 → 鼠标 → 辅助点按**）；轻点右侧来右键默认关闭（见[高级设置](#高级设置)）。
 
 ### 双指切换空间
 
@@ -81,7 +82,7 @@ Tapper 需要辅助功能权限来发送点击和缩放手势。它通过 Apple 
 | 菜单项 | 作用 |
 | --- | --- |
 | Status | 显示 `Running (1 Magic Mouse)`、`Waiting for Magic Mouse` 或 `Disabled`。 |
-| Tap to Click | 开关轻点点击。每次启动都会重新打开。Two-Finger Zoom 关闭时，关掉它也会暂停双指切换空间。 |
+| Tap to Click | 开关轻点点击，包括双指轻点右键。每次启动都会重新打开。Two-Finger Zoom 关闭时，关掉它也会暂停双指切换空间。 |
 | Two-Finger Zoom | 开关缩放，设置会保留。 |
 | Launch at Login | 登录时自动启动 Tapper。 |
 | Prevent Sleep (Keep Running) | Tapper 运行且 Mac 接通电源时，阻止 Mac 进入睡眠（显示器仍可关闭）。默认关闭。 |
@@ -116,6 +117,9 @@ Tapper 需要辅助功能权限来发送点击和缩放手势。它通过 Apple 
 # 在鼠标右侧轻点并稍作停留再抬起即为右键（默认关闭）
 defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.rightTapEnabled -bool true
 
+# 关闭双指轻点右键（默认打开）
+defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.twoFingerTapEnabled -bool false
+
 # 双指滑动切换空间的方式：dockswipe（默认）、instant、hotkey 或 off
 defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.swipeMode -string instant
 
@@ -134,6 +138,8 @@ defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.swipeI
 **轻点没有反应。** 确认 **隐私与安全性 → 辅助功能** 里 Tapper 已打开。安装新构建后，把开关关掉再打开，或者移除 Tapper 后重新添加 `/Applications/Tapper.app`。如果状态显示 `Waiting for Magic Mouse`，请检查 Tapper 是否已获得辅助功能权限，以及鼠标是否已连接。鼠标后三分之一的轻点本来就会被忽略。
 
 **每次轻点都点了两下。** 还有另一个轻点点击应用在运行。退出它，并在 **系统设置 → 通用 → 登录项** 里移除它。
+
+**双指轻点两下会打开调度中心。** 这是系统自带的 Magic Mouse 手势。只想要右键的话，在 **系统设置 → 鼠标 → 更多手势** 中关闭"调度中心"。
 
 **双指滑动不切换空间。** 关闭"轻扫切换全屏显示应用程序"（见上文），并确认 **Tap to Click** 已打开。已经在第一个或最后一个空间时，无法再往外切换。
 

@@ -46,6 +46,8 @@ final class ZoomCoordinator: @unchecked Sendable {
 
     var currentGeneration: UInt { locked { generation } }
     var isEnabled: Bool { locked { configuration.zoomEnabled && available } }
+    /// A zoom has begun and not ended: the fingers are zooming, not tapping.
+    var isZooming: Bool { locked { detector.state == .active } }
     var needsTargetCheck: Bool { locked { detector.state == .candidate || detector.state == .active || synthesizer.hasPendingOutput || !buffered.isEmpty } }
 
     func configure(_ config: TapConfiguration, available: Bool) {

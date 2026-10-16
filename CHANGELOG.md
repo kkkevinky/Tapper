@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Tap with two fingers to right-click, as on a trackpad. The `twoFingerTapEnabled` advanced option turns it off.
+
 ## [1.0] - 2026-10-14
 
 First release of Tapper.

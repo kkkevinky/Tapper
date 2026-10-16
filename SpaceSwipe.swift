@@ -531,6 +531,13 @@ final class SpaceSwipeEngine {
         return toTheRight ? 1 : -1
     }
 
+    /// The fingers have been recognized as a swipe, whether or not it posts
+    /// anything, so they are not tapping.
+    var isEngaged: Bool {
+        if case .none = gesture { return false }
+        return true
+    }
+
     func process(_ contacts: [TwoFingerSwipeTracker.Contact], now: TimeInterval) {
         guard let event = tracker.update(contacts, now: now) else { return }
         switch event {

@@ -17,10 +17,11 @@ English | [中文](README_zh.md) | [日本語](README_ja.md)
 
 - **Tap** anywhere on the front two thirds of the mouse to left-click. Taps on the back third are ignored, so a resting palm never clicks.
 - **Tap twice** quickly to double-click.
+- **Tap with two fingers** to right-click, as on a trackpad. Both fingers land and lift together; the time and movement limits of a one-finger tap apply.
 - **Drag**: tap, touch again and keep the finger down, then move the mouse. Lift the finger to drop.
 - **Light taps count.** A brief, light touch that the mouse barely registers still clicks.
 - **Resting fingers don't get in the way.** A finger left still on the mouse for half a second is ignored, so another finger can tap next to it.
-- **Pressing still works.** Pressing the mouse as usual clicks once; Tapper never adds a second click. Right-click by pressing the right side of the mouse as usual (**System Settings → Mouse → Secondary click**). Tapping to right-click is off by default ([Advanced settings](#advanced-settings)).
+- **Pressing still works.** Pressing the mouse as usual clicks once; Tapper never adds a second click. Pressing the right side of the mouse still right-clicks (**System Settings → Mouse → Secondary click**). Tapping the right side to right-click is off by default ([Advanced settings](#advanced-settings)).
 
 ### Switch Spaces with two fingers
 
@@ -81,7 +82,7 @@ Tapper needs Accessibility access to post clicks and zoom gestures. It reads tou
 | Item | What it does |
 | --- | --- |
 | Status | `Running (1 Magic Mouse)`, `Waiting for Magic Mouse` or `Disabled`. |
-| Tap to Click | Turns tap clicks on or off. It is on again at every launch. With Two-Finger Zoom off, turning it off also pauses Space switching. |
+| Tap to Click | Turns tap clicks, two-finger right-clicks included, on or off. It is on again at every launch. With Two-Finger Zoom off, turning it off also pauses Space switching. |
 | Two-Finger Zoom | Turns zoom on or off. Saved across launches. |
 | Launch at Login | Starts Tapper when you log in. |
 | Prevent Sleep (Keep Running) | Keeps the Mac from going to sleep while Tapper runs and the Mac is on power (the display can still sleep). Off by default. |
@@ -116,6 +117,9 @@ A few options have no menu yet. Set them in Terminal, then quit and reopen Tappe
 # Right-click with a slightly longer tap on the right side of the mouse (off by default)
 defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.rightTapEnabled -bool true
 
+# Stop tapping with two fingers from right-clicking (on by default)
+defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.twoFingerTapEnabled -bool false
+
 # How a two-finger swipe switches Spaces: dockswipe (default), instant, hotkey or off
 defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.swipeMode -string instant
 
@@ -134,6 +138,8 @@ To go back to a default, delete the key, for example `defaults delete io.github.
 **Taps do nothing.** Check that Tapper is on in **Privacy & Security → Accessibility**. After installing a new build, turn the switch off and on, or remove Tapper and add `/Applications/Tapper.app` again. If the status reads `Waiting for Magic Mouse`, check that Tapper has Accessibility access and that the mouse is connected. Taps on the back third of the mouse are ignored by design.
 
 **Every tap clicks twice.** Another tap-to-click app is still running. Quit it and remove it from **System Settings → General → Login Items**.
+
+**Tapping twice with two fingers opens Mission Control.** That is the system's own Magic Mouse gesture. Turn off **Mission Control** in **System Settings → Mouse → More Gestures** to keep only the right-clicks.
 
 **Two-finger swipes don't switch Spaces.** Turn off **Swipe between full-screen applications** (see above), and make sure **Tap to Click** is on. At the first or last Space, a swipe can't switch any further.
 

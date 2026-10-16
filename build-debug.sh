@@ -66,6 +66,7 @@ echo "📦 Compiling debug version..."
     MultitouchDeviceClassifier.swift \
     TapConfiguration.swift \
     TapDetector.swift \
+    TwoFingerTap.swift \
     TouchTuning.swift \
     SpaceSwipe.swift \
     EventSynthesizer.swift \

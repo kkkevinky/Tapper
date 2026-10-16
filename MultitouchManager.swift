@@ -29,6 +29,7 @@ final class MultitouchManager: @unchecked Sendable {
     private var tuning = TouchTuning.load()
     private var restingFilters: [Int32: RestingContactFilter] = [:]
     private var palmFilters: [Int32: PalmContactFilter] = [:]
+    private var twoFingerTaps: [Int32: TwoFingerTapDetector] = [:]
     private var tapTimeLimit: TimeInterval
     private var activeTouchStartUptime: TimeInterval = 0
     private var activeTouchReachedTouching = false
@@ -150,6 +151,7 @@ final class MultitouchManager: @unchecked Sendable {
             configSummary = Self.summary(of: config)
             tuning = TouchTuning.load()
             swipeEngine.update(tuning: tuning)
+            twoFingerTaps.removeAll()
         }
 
         #if DEBUG
@@ -203,7 +205,7 @@ final class MultitouchManager: @unchecked Sendable {
 
         NSLog("Tapper registered %d supported Magic Mouse device(s)", devices.count)
         let versions = DockSwipePoster.detectedVersions
-        tapLog.notice("started: \(self.devices.count, privacy: .public) Magic Mouse device(s); \(self.configSummary, privacy: .public); rightTap=\(self.tuning.rightTapEnabled, privacy: .public) hoverTaps=\(self.tuning.hoverTapsEnabled, privacy: .public) restAge=\(self.tuning.restAge, privacy: .public); swipe=\(self.tuning.swipeMode, privacy: .public) gain=\(self.tuning.swipeGain, privacy: .public) payload=\(DockSwipePoster.Options(self.tuning).payload, privacy: .public) companion=\(self.tuning.swipeCompanion, privacy: .public); macOS foundation=\(versions.foundation, privacy: .public) product=\(versions.product, privacy: .public)")
+        tapLog.notice("started: \(self.devices.count, privacy: .public) Magic Mouse device(s); \(self.configSummary, privacy: .public); rightTap=\(self.tuning.rightTapEnabled, privacy: .public) twoFingerTap=\(self.tuning.twoFingerTapEnabled, privacy: .public) hoverTaps=\(self.tuning.hoverTapsEnabled, privacy: .public) restAge=\(self.tuning.restAge, privacy: .public); swipe=\(self.tuning.swipeMode, privacy: .public) gain=\(self.tuning.swipeGain, privacy: .public) payload=\(DockSwipePoster.Options(self.tuning).payload, privacy: .public) companion=\(self.tuning.swipeCompanion, privacy: .public); macOS foundation=\(versions.foundation, privacy: .public) product=\(versions.product, privacy: .public)")
 
         return devices.count
     }
@@ -224,6 +226,7 @@ final class MultitouchManager: @unchecked Sendable {
             swipeEngine.cancel()
             restingFilters.removeAll()
             palmFilters.removeAll()
+            twoFingerTaps.removeAll()
 
             for device in devices {
                 MTUnregisterContactFrameCallback(device, touchCallback)
@@ -239,6 +242,7 @@ final class MultitouchManager: @unchecked Sendable {
         performOnTouchQueue {
             if isEnabled && !enabled {
                 cancelActiveGestureOnTouchQueue()
+                twoFingerTaps.removeAll()
             }
             isEnabled = enabled
         }
@@ -356,6 +360,11 @@ final class MultitouchManager: @unchecked Sendable {
             pressBaselineUptime = ProcessInfo.processInfo.systemUptime
         }
         defer { if numTouches == 0 { pressBaselineUptime = 0 } }
+        // Every frame of a two-finger tap is consumed by the multi-contact
+        // branch below, so it is followed and decided here.
+        if isEnabled && tuning.twoFingerTapEnabled {
+            processTwoFingerTapOnTouchQueue(touches, effective: effective, device: device, timestamp: timestamp)
+        }
         if numTouches > 1 || zoomOwns {
             if !consumedDevices.contains(device) {
                 let shapes = effective.map { String(format: "(%.2f,%.2f size %.2f major %.1f)", $0.normalized.position.x, $0.normalized.position.y, $0.size, $0.majorAxis) }.joined(separator: " ")
@@ -654,6 +663,59 @@ final class MultitouchManager: @unchecked Sendable {
             preferenceKeys: Set(preferences?.keys.map { $0 } ?? []),
             productName: properties["Product"] as? String
         )
+    }
+
+    /// Two fingers tapped together: a right click at the pointer, as on a
+    /// trackpad. Decided on the frame where the surface is empty again.
+    private func processTwoFingerTapOnTouchQueue(_ touches: [MTTouch], effective: [MTTouch],
+                                                 device: Int32, timestamp: Double) {
+        var detector = twoFingerTaps[device, default: TwoFingerTapDetector()]
+        defer { twoFingerTaps[device] = detector }
+
+        if isDraggingActive { detector.cancel(reason: "drag in progress") }
+        if swipeEngine.isEngaged { detector.cancel(reason: "swipe") }
+        if zoomCoordinator.isZooming { detector.cancel(reason: "zoom") }
+        // Gone from the effective contacts but still on the surface: the finger
+        // came to rest or turned out to be a palm, which is never a tap.
+        if effective.isEmpty && touches.contains(where: { detector.fingerIDs.contains($0.identifier) }) {
+            detector.cancel(reason: "finger came to rest")
+        }
+
+        let limits = TwoFingerTapDetector.Limits(
+            maxDuration: tapTimeLimit,
+            minDuration: tapDetector.minTapDuration,
+            maxFingerGap: tuning.twoFingerTapGap,
+            maxSurfaceMovement: surfaceMovementThreshold,
+            maxSurfacePath: surfacePathThreshold,
+            maxCursorMovement: tapDetector.tapMovementThreshold,
+            hoverTaps: tuning.hoverTapsEnabled,
+            hoverMinSize: tuning.hoverMinSize,
+            hoverMinDuration: tuning.hoverMinDuration)
+        let contacts = effective.map {
+            TwoFingerTapDetector.Contact(id: $0.identifier, state: $0.state, x: $0.normalized.position.x,
+                                         y: $0.normalized.position.y, size: $0.size)
+        }
+        let outcome = detector.update(contacts, now: timestamp, limits: limits) {
+            let location = cursorProvider()
+            if let location { lastCursorLocation = location }
+            return location
+        }
+
+        switch outcome {
+        case .tap(let location, let summary)?:
+            // Checked before posting, so our own right-down is never mistaken
+            // for a press.
+            if physicalButtonPressedDuringTouchOnTouchQueue() {
+                tapLog.notice("two-finger tap -> no click (physical press) \(summary, privacy: .public)")
+                return
+            }
+            onClickSynthesized?(location ?? lastCursorLocation, true, 1)
+            tapLog.notice("two-finger tap -> RIGHT click \(summary, privacy: .public)")
+        case .rejected(let reason, let summary)?:
+            tapLog.notice("two-finger tap -> no click (\(reason, privacy: .public)) \(summary, privacy: .public)")
+        case nil:
+            break
+        }
     }
 
     private func stableDeviceID(for device: MTDeviceRef) -> UInt64? {
