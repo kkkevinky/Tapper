@@ -56,7 +56,7 @@ cd Tapper
 bash install-final.sh
 ```
 
-The script builds a universal app (Apple Silicon and Intel), quits any copy that is running, installs it as `/Applications/Tapper.app`, and then asks (y/N) whether to open it. A previous version is kept next to it as a `Tapper_backup_….app` copy. To try a build without installing it, run `bash test-and-install.sh --test-only`.
+The script builds a universal app (Apple Silicon and Intel), quits any copy that is running, installs it as `/Applications/Tapper.app`, and then asks (y/N) whether to open it. The previous version is kept as a zip in `build/backups/`, not as a second app: macOS would otherwise open whichever copy has the higher build number. To try a build without installing it, run `bash test-and-install.sh --test-only`.
 
 To install by hand instead, quit Tapper first, then:
 
@@ -146,7 +146,7 @@ To go back to a default, delete the key, for example `defaults delete io.github.
 ## Uninstall
 
 1. Turn off **Launch at Login** in Tapper's menu. If you changed the pointer speed, press **Restore Default** first.
-2. Quit Tapper and delete `/Applications/Tapper.app` and any `Tapper_backup_*.app` next to it.
+2. Quit Tapper and delete `/Applications/Tapper.app`, and any `Tapper_backup_*.app` that older install scripts left next to it.
 3. Optionally remove Tapper from **Privacy & Security → Accessibility** and delete its settings with `defaults delete io.github.kkkevinky.tapper`.
 
 ## Privacy

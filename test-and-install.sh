@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 APP_PATH="$SCRIPT_DIR/build/Tapper.app"
 INSTALL_PATH="/Applications/Tapper.app"
+BACKUP_DIR="$SCRIPT_DIR/build/backups"
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 MODE="${1:-interactive}"
 case "$MODE" in
     interactive|--build-only|--test-only|--install-only) ;;
@@ -77,13 +79,26 @@ ditto "$APP_PATH" "$STAGING/Tapper.app"
 codesign --verify --deep --strict "$STAGING/Tapper.app"
 cmp "$APP_PATH/Contents/MacOS/Tapper" "$STAGING/Tapper.app/Contents/MacOS/Tapper"
 stop_instances
+# The old app waits in the hidden staging folder until the new one is in place.
+# A launchable copy with the same bundle id must not stay around: macOS opens
+# (and System Settings lists) whichever copy has the higher build number.
 if [[ -e "$INSTALL_PATH" || -L "$INSTALL_PATH" ]]; then
-    BACKUP_PATH="/Applications/Tapper_backup_$(date +%Y%m%d_%H%M%S)_$$.app"
+    BACKUP_PATH="$STAGING/Tapper_previous.app"
     mv "$INSTALL_PATH" "$BACKUP_PATH"
 fi
 mv "$STAGING/Tapper.app" "$INSTALL_PATH"
+"$LSREGISTER" -f "$INSTALL_PATH" || true
 echo "已安装本次构建: $INSTALL_PATH"
-if [[ -n "$BACKUP_PATH" ]]; then echo "旧版备份: $BACKUP_PATH"; fi
+if [[ -n "$BACKUP_PATH" ]]; then
+    "$LSREGISTER" -u "$BACKUP_PATH" || true
+    mkdir -p "$BACKUP_DIR"
+    BACKUP_ZIP="$BACKUP_DIR/Tapper_backup_$(date +%Y%m%d_%H%M%S)_$$.zip"
+    if ditto -c -k --keepParent "$BACKUP_PATH" "$BACKUP_ZIP"; then
+        echo "旧版已压缩备份: $BACKUP_ZIP"
+    else
+        echo "旧版备份压缩失败，未保留备份。" >&2
+    fi
+fi
 if confirm "是否立即启动已安装版本"; then
     open -n "$INSTALL_PATH"
 fi

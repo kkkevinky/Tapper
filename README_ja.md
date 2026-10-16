@@ -56,7 +56,7 @@ cd Tapper
 bash install-final.sh
 ```
 
-スクリプトはユニバーサルアプリ（Apple シリコンと Intel の両対応）をビルドし、実行中のコピーを終了して `/Applications/Tapper.app` としてインストールし、すぐに開くかどうかを（y/N で）たずねます。以前のバージョンは `Tapper_backup_….app` として同じ場所に残ります。インストールせずに新しいビルドを試すには `bash test-and-install.sh --test-only` を実行します。
+スクリプトはユニバーサルアプリ（Apple シリコンと Intel の両対応）をビルドし、実行中のコピーを終了して `/Applications/Tapper.app` としてインストールし、すぐに開くかどうかを（y/N で）たずねます。以前のバージョンは 2 つ目のアプリとしてではなく、zip にして `build/backups/` に保存されます。アプリが 2 つあると、macOS はビルド番号の大きいほうを開いてしまうためです。インストールせずに新しいビルドを試すには `bash test-and-install.sh --test-only` を実行します。
 
 手動でインストールする場合は、先に Tapper を終了してから：
 
@@ -146,7 +146,7 @@ defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.swipeI
 ## アンインストール
 
 1. Tapper のメニューで **Launch at Login** をオフにします。ポインタの速度を変えていた場合は、先に **Restore Default** を押してください。
-2. Tapper を終了し、`/Applications/Tapper.app` と、その隣にある `Tapper_backup_*.app` を削除します。
+2. Tapper を終了し、`/Applications/Tapper.app` と、以前のインストールスクリプトが隣に残した `Tapper_backup_*.app` を削除します。
 3. 必要に応じて **プライバシーとセキュリティ → アクセシビリティ** から Tapper を削除し、`defaults delete io.github.kkkevinky.tapper` で設定を消去します。
 
 ## プライバシー

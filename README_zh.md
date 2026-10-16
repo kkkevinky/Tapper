@@ -56,7 +56,7 @@ cd Tapper
 bash install-final.sh
 ```
 
-脚本会构建通用版应用（同时支持 Apple 芯片和 Intel），退出正在运行的副本，安装为 `/Applications/Tapper.app`，然后询问是否立即打开（y/N）。旧版本会以 `Tapper_backup_….app` 的形式保留在旁边。只想试用新构建而不安装，可以运行 `bash test-and-install.sh --test-only`。
+脚本会构建通用版应用（同时支持 Apple 芯片和 Intel），退出正在运行的副本，安装为 `/Applications/Tapper.app`，然后询问是否立即打开（y/N）。旧版本会压缩成 zip 保存在 `build/backups/`，而不是留下第二个应用：否则 macOS 会打开构建号更高的那一份。只想试用新构建而不安装，可以运行 `bash test-and-install.sh --test-only`。
 
 也可以手动安装，先退出 Tapper，然后：
 
@@ -146,7 +146,7 @@ defaults write io.github.kkkevinky.tapper io.github.kkkevinky.tapper.tune.swipeI
 ## 卸载
 
 1. 在 Tapper 菜单里关闭 **Launch at Login**。如果改过指针速度，先点 **Restore Default**。
-2. 退出 Tapper，删除 `/Applications/Tapper.app` 以及旁边的 `Tapper_backup_*.app`。
+2. 退出 Tapper，删除 `/Applications/Tapper.app`，以及旧版安装脚本留在旁边的 `Tapper_backup_*.app`。
 3. 可选：在 **隐私与安全性 → 辅助功能** 里移除 Tapper，并用 `defaults delete io.github.kkkevinky.tapper` 删除它的设置。
 
 ## 隐私

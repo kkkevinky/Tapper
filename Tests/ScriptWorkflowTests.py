@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parents[1]
+LSREGISTER = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 
 
 class ScriptWorkflowTests(unittest.TestCase):
@@ -23,6 +24,7 @@ class ScriptWorkflowTests(unittest.TestCase):
         for name in ["test-and-install.sh", "install-final.sh", "quick-test.sh", "debug-run.sh"]:
             text = (REPO / name).read_text().replace("/Applications", str(self.apps))
             text = text.replace("/usr/libexec/PlistBuddy", str(self.bin / "PlistBuddy"))
+            text = text.replace(LSREGISTER, str(self.bin / "lsregister"))
             # Quote the fixture path as the real absolute tool path has no spaces.
             text = text.replace(str(self.bin / "PlistBuddy"), '"' + str(self.bin / "PlistBuddy") + '"')
             (self.project / name).write_text(text)
@@ -32,7 +34,9 @@ class ScriptWorkflowTests(unittest.TestCase):
         self.command("killall", 'echo "stop $1" >> "$ACTION_LOG"; if [[ "${HOLD_PROCESS:-}" != yes ]]; then rm -f "$PROCESS_STATE/$1"; fi')
         self.command("sleep", ":")
         self.command("open", 'echo "open $*" >> "$ACTION_LOG"')
-        self.command("ditto", 'cp -R "$1" "$2"')
+        self.command("lsregister", 'echo "lsregister $*" >> "$ACTION_LOG"')
+        # `ditto -c -k --keepParent src dst.zip` stands in as a copy to dst.zip.
+        self.command("ditto", 'if [[ "$1" == -c ]]; then [[ "${FAIL_ARCHIVE:-}" != yes ]] && cp -R "$4" "$5"; else cp -R "$1" "$2"; fi')
         self.command("mv", 'if [[ "${FAIL_MOVE:-}" == yes && "$1" == *Tapper-install*/Tapper.app ]]; then exit 1; fi; /bin/mv "$@"')
         for script, app, executable in [("build.sh", "Tapper", "Tapper"), ("build-debug.sh", "Tapper_Debug", "Tapper_Debug")]:
             (self.project / script).write_text(f"""#!/bin/bash
@@ -91,14 +95,22 @@ printf fresh > "build/{app}.app/Contents/MacOS/{executable}"
         self.assertIn(f"open -n {self.project}/build/Tapper.app", self.actions())
         self.assertFalse(list(self.apps.glob("*backup*")))
 
-    def test_install_wrapper_rebuilds_and_preserves_backup(self):
+    def test_install_wrapper_rebuilds_and_archives_backup(self):
         result = self.run_script("install-final.sh", answer="n\n")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.installed.read_text(), "fresh")
-        backups = list(self.apps.glob("*backup*.app/Contents/MacOS/Tapper"))
+        backups = list((self.project / "build/backups").glob("Tapper_backup_*.zip/Contents/MacOS/Tapper"))
         self.assertEqual(len(backups), 1)
         self.assertEqual(backups[0].read_text(), "old")
-        self.assertFalse(list(self.apps.glob(".Tapper-install.*")))
+        # No second launchable copy is left next to the installed app.
+        self.assertEqual([p.name for p in self.apps.iterdir()], ["Tapper.app"])
+        self.assertIn(f"lsregister -f {self.apps}/Tapper.app", self.actions())
+
+    def test_failed_archive_still_installs(self):
+        result = self.run_script("install-final.sh", answer="n\n", FAIL_ARCHIVE="yes")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.installed.read_text(), "fresh")
+        self.assertEqual([p.name for p in self.apps.iterdir()], ["Tapper.app"])
 
     def test_failed_staging_does_not_replace_old_app(self):
         result = self.run_script("install-final.sh", FAIL_VERIFY="yes")
