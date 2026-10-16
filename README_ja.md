@@ -7,7 +7,7 @@
 
 Tapper は、macOS が Apple Magic Mouse に用意していない 2 つの操作を加えます。タップでクリックすることと、2 本指で操作スペースを切り替えることです。切り替え中の画面は指に追従します。どちらも手のひらをマウスに乗せたまま使えます。
 
-バージョン 1.0。macOS 13 以降で動作します。macOS 27 と USB-C の Magic Mouse で開発・テストしています。
+バージョン 1.1。macOS 13 以降で動作します。macOS 27 と USB-C の Magic Mouse で開発・テストしています。
 
 [English](README.md) | [中文](README_zh.md) | 日本語
 

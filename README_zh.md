@@ -7,7 +7,7 @@
 
 Tapper 为 Apple Magic Mouse 补上 macOS 没有提供的两件事：轻点点击，以及用双指切换空间（Spaces），画面会跟着手指移动。两种操作都可以把手掌放在鼠标上进行。
 
-版本 1.0。支持 macOS 13 及以上；在 macOS 27 和 USB-C 接口的 Magic Mouse 上开发和测试。
+版本 1.1。支持 macOS 13 及以上；在 macOS 27 和 USB-C 接口的 Magic Mouse 上开发和测试。
 
 [English](README.md) | 中文 | [日本語](README_ja.md)
 

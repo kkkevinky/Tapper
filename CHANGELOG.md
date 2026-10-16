@@ -1,8 +1,9 @@
 # Changelog
 
-## [Unreleased]
+## [1.1] - 2026-10-17
 
 - Tap with two fingers to right-click, as on a trackpad. The `twoFingerTapEnabled` advanced option turns it off.
+- `install-final.sh` keeps the previous version as a zip in `build/backups/` instead of a second app next to the new one, so macOS always opens the version just installed.
 
 ## [1.0] - 2026-10-14
 

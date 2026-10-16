@@ -7,7 +7,7 @@
 
 Tapper gives the Apple Magic Mouse two things macOS leaves out: tap to click, and switching Spaces with two fingers while the screen follows them. Your palm can stay on the mouse for both.
 
-Version 1.0. Runs on macOS 13 or later; developed and tested on macOS 27 with the USB-C Magic Mouse.
+Version 1.1. Runs on macOS 13 or later; developed and tested on macOS 27 with the USB-C Magic Mouse.
 
 English | [中文](README_zh.md) | [日本語](README_ja.md)
 
